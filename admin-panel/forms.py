@@ -1,5 +1,7 @@
 from django import forms
 from . import models
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
 class ProductForm(forms.Form):
     class Meta:
@@ -7,7 +9,16 @@ class ProductForm(forms.Form):
         fields = '__all__'
 
 
-class UserForm(forms.Form):
+class RegisterForm(UserCreationForm):
+    email = forms.EmailField()
+
     class Meta:
-        model = models.User
-        fields = '__all__'
+        model = User
+        fields = ["username", "email", "password1", "password2"]
+
+    def save(self, commit=True):
+        user = super(RegisterForm, self).save(commit=False)
+        user.email = self.cleaned_data["email"]
+        if commit:
+            user.save()
+        return user
